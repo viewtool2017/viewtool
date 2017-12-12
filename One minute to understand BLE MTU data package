@@ -1,0 +1,202 @@
+1.Profile
+  * MTU: ATT Maximum Transmission Unit (MTU) is the maximum length of an ATT packet. The ATT MTU is defined by the L2CAP and can be 
+anywhere between 23 and infinity. The implementation of the Bluetooth stack is the key factor of determining the ATT MTU on both client and peripheral.
+     A generic ATT packet has the following structure:
+
+
+
+
+
+
+
+
+
+
+    MTU exchange happens after master and slave device build up connection, refer: "One minute to understand BLE connection data package"
+
+http://www.viewtool.com/forum/vi ... &extra=page%3D1
+
+  Below is the comparison of few of major wireless protocol (units: bytes)
+  ****************************************************************      
+  Ethernet：1500
+  IEEE 802.3/802.2:　1492
+  X.25: 576
+  BLE: 23 (for BLE4.0/4.1), 251 (for BLE4.2) => that's why wifi could be used to transfer video，traditional bluetooth(BT) could be used to transfer audio, and BLE only could be used to transfer control data.
+  ****************************************************************
+  * MTU exchange command: is ATT command
+  * MTU exchange procedure see below：
+
+
+
+
+
+  * MTU tow commands（“MTU request”and“MTU response”）description in detail（see“4”）
+
+2.Keyword: Hollong BLE Sniffer, BLE Data Analyzer，BLE Data Capture
+
+3.Preparation before capturing BLE data 
+  * Hardware：One BLE device (as slave device) and one master device(such as lightblue or redwoods app in iOS or Android)；
+           One HOLLONG BLE SNIFFER 
+  * Software：Hollong BLE sniffer and protocol analyzer
+        download link：
+
+http://www.viewtool.com/index.ph ... hollong-4-0-4-1-ble
+
+4. MTU REQEUST
+   Complete data (marked by blue color)
+
+
+
+
+
+
+    1) Access Address: 0xaf9a8c69
+    Fixed 4 bytes，specified by CONNECT_REQ（see:http://www.viewtool.com/forum/vi ... &extra=page%3D1）
+
+
+
+
+   2) Header Info
+　Data Header: 0x0706    000. .... = RFU: 0
+    ...0 .... = More Data: False
+    .... 0... = Sequence Number: 0
+    .... .1.. = Next Expected Sequence Number: 1
+    .... ..10 = LLID: Start of an L2CAP message or a complete L2CAP message with no fragmentation (0x2)
+    000. .... = RFU: 0
+    ...0 0111 = Length: 7
+
+
+
+
+
+
+　3) L2CAP Length
+    In BLE protocol layer，All of GAP,GATT and SMP use L2CAP channel to transfer command to LINK LAYER，L2CAP packing need to specify 
+L2CAP length and channel ID
+    Length: 3
+
+
+
+
+
+
+   4) L2CAP CID：channel ID
+   CID: Attribute Protocol (0x0004)
+
+
+
+
+
+
+    5) ATT command
+     standard:    
+
+
+
+
+     actual data package：
+    Opcode: Exchange MTU Request (0x02)
+    0... .... = Authentication Signature: False
+    .0.. .... = Command: False
+    ..00 0010 = Method: Exchange MTU Request (0x02)
+
+
+
+
+
+
+
+   6) MTU value （requested）
+    Client Rx MTU: 185
+
+
+
+
+
+
+
+   7) CRC 
+
+
+
+
+
+
+5. MTU RESPONSE
+    completed data package：
+
+
+
+
+
+
+    1) Access Address: 0xaf9a8c69
+    Fixed 4 bytes，specified by CONNECT_REQ（see:http://www.viewtool.com/forum/vi ... &extra=page%3D1）
+
+
+
+
+   2) Header Info
+　Data Header: 0x0706    000. .... = RFU: 0
+    ...0 .... = More Data: False
+    .... 0... = Sequence Number: 0
+    .... .1.. = Next Expected Sequence Number: 1
+    .... ..10 = LLID: Start of an L2CAP message or a complete L2CAP message with no fragmentation (0x2)
+    000. .... = RFU: 0
+    ...0 0111 = Length: 7
+
+
+
+
+
+
+    3）. L2CAP length
+        same as MTU request.
+        Length: 3
+
+
+
+
+
+
+    4）.L2CAP CID: channel ID
+        same as MTU request.
+       CID: Attribute Protocol (0x0004)
+
+
+
+
+
+
+    5）. ATT command
+       standard：
+
+
+
+
+
+
+       For this example：
+       Opcode: Exchange MTU Response (0x03)    0... .... = Authentication Signature: False
+    .0.. .... = Command: False
+    ..00 0011 = Method: Exchange MTU Response (0x03)
+
+
+
+
+
+
+     6） MTU value
+      Server Rx MTU: 23
+
+
+
+
+
+
+      7）CRC
+       CRC: 0xf4767e
+    [Expert Info (Note/Checksum): CRC unchecked, not all data available]
+
+
+
